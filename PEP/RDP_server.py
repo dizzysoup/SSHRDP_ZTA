@@ -1,15 +1,17 @@
 import socket
 import threading
+import requests
 
-
-# 定义代理服务器的地址和端口
+#  Proxy Server
 PROXY_HOST = '192.168.166.18'
 PROXY_PORT = 3389
 
-# 定义RDP服务器的地址和端口
+# RDP Server
 RDP_SERVER_HOST = '192.168.166.17'
 RDP_SERVER_PORT = 3389
     
+# PDP 
+AUTH_SERVER_URL = 'http://192.168.166.16:3000/'
 
 def forward_data(source, destination):
     while True:
@@ -27,19 +29,22 @@ def handle_client(client_socket):
     rdp_server_socket.connect((RDP_SERVER_HOST, RDP_SERVER_PORT))
     
     auth_data = client_socket.recv(1024).decode("latin1")
+    # username 
     auth_part = auth_data.split("mstshash=")[1]
     print(f"Received authentication data: {auth_part}")
     
-    rdp_server_socket.sendall(auth_data.encode("latin1"))
-    client_to_server_thread = threading.Thread(target=forward_data, args=(client_socket, rdp_server_socket))
-    server_to_client_thread = threading.Thread(target=forward_data, args=(rdp_server_socket, client_socket))
-
-    client_to_server_thread.start()
-    server_to_client_thread.start()
-   
-    #username = client_socket.recv(1024).decode("latin1")
-    # print(f"Received username: {username}")
-    print("??")    
+    response = requests.post(AUTH_SERVER_URL, data={'username' : auth_part})
+    if response.status_code == 200 :
+        client_to_server_thread = threading.Thread(target=forward_data, args=(client_socket, rdp_server_socket))
+        server_to_client_thread = threading.Thread(target=forward_data, args=(rdp_server_socket, client_socket))
+    
+        rdp_server_socket.sendall(auth_data.encode("latin1"))
+        client_to_server_thread.start()
+        server_to_client_thread.start()
+    else :
+        print("Authentication failed")
+        client_socket.close()
+    
 
 def main():
     # 创建代理服务器的套接字

@@ -39,7 +39,7 @@ host_key = paramiko.RSAKey.generate(2048)
 
 # 定義一個用戶名和密碼的驗證函數
 def check_auth(username, password):
-    r = requests.post("http://192.168.166.16:3000/", data = {'username' : 'pep' , 'password' : 'pep'})
+    r = requests.post("http://192.168.166.16:3000/", data = {'username' : username, 'password' : password})
     print(r.text)
     print("身分驗證成功")
     return username == 'pep' and password == 'pep'
