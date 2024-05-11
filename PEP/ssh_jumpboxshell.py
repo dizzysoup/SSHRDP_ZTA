@@ -144,6 +144,7 @@ try:
                     print("使用者斷開連接")
                     print("\r\n**** EOF **** \r\n")
                     chan.close()
+                    ssh_server.remove_
                 print(result)
                 chan.send(result)
 
