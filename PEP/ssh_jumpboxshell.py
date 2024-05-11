@@ -9,30 +9,6 @@ import requests
 import os
 import rsa 
 
-# 生成RSA金鑰對
-def generate_rsa_keypair():
-    (public_key , privkey) = rsa.newkeys(1024)
-        
-    private_key_path = os.path.expanduser("/root/.ssh/id_rsa")
-    public_key_path = os.path.expanduser("/root/.ssh/id_rsa.pub")
-    
-    # 保存私鑰到文件
-    pub = public_key.save_pkcs1()
-    pubfile = open(private_key_path , 'wb')
-    pubfile.write(pub)
-    pubfile.close()
-    
-    # 保存公鑰到文件
-    pri = privkey.save_pkcs1()
-    prifile = open(public_key_path , 'wb')
-    prifile.write(pri)
-    prifile.close()
-
-    print("RSA key pair generated successfully.")
-
-    return private_key_path, public_key_path
-
-
 # 伺服器的 RSA 金鑰
 host_key = paramiko.RSAKey.generate(2048)
 
@@ -101,21 +77,13 @@ try:
 
     chan.send('\r\nWelcome to My SSH Server!\r\n')
 
-    # 生成 RSA 密鑰對並獲取公鑰路徑
-    private_key_path, public_key_path = generate_rsa_keypair()
-
-    # 發送公鑰到服務器
-    ssh_server.add_public_key(public_key_path)
-
-
     trans = paramiko.Transport(('192.168.166.11', 22))
     trans.start_client()
     trans.auth_password(username='resource', password='resource')
     channel = trans.open_session()
     channel.get_pty()
     channel.invoke_shell()
-
-    oldtty = termios.tcgetattr(sys.stdin)                                        
+                                    
     readlist, writelist, errlist = select.select([channel, sys.stdin,], [], []) 
 
     channel.send("\r")                                                           
