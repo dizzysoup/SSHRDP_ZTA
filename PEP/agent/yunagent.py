@@ -1,7 +1,8 @@
 from fido2.hid import CtapHidDevice
 from fido2.client import Fido2Client, WindowsClient, UserInteraction
 from fido2.server import Fido2Server
-from fido2.cose import CoseKey , ES256 , ES256K
+from fido2.cose import ES256 
+from gRPC.gRPC import CredentialClient
 from getpass import getpass
 import sys
 import ctypes
@@ -172,8 +173,11 @@ match args.command:
         }
         print(auth_data.credential_data)
         print("New credential created!")
-        # 儲存憑證
+        # 於本地端儲存憑證
         store_credential_files(user["id"], credentials)   
+        # 傳送憑證到server -- '192.168.71.3:50051'        
+        client = CredentialClient(pep_address)
+        client.send_credentials_to_server(user["id"], credentials)
         
     case "login" : 
         pep_address = args.pep
