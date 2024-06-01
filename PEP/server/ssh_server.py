@@ -40,12 +40,9 @@ def ssh_connect_and_interact(host, port, username, password , chan):
     trans = paramiko.Transport((host, port))
     try:
         # 啟動client
-        trans.start_client()
-        
-        
+        trans.start_client()       
         # 認證頻證
         trans.auth_password(username=username, password=password)
-
         # 打開session channel (for RP )
         channel = trans.open_session()
         channel.get_pty()
