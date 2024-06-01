@@ -34,13 +34,14 @@ class CredentialServiceServicer(credentials_pb2_grpc.CredentialServiceServicer):
         # 這裡是儲存憑證的邏輯
         pass
     # 發送資訊到PDP的邏輯
-    def post_to_pdp(self, credentials):
-        pdp_url = "http://192.168.71.5:3000"  #  PDP addresss
+    def auth_chk(self, credentials):
+        pdp_url = "http://192.168.71.5:3000/login"  #  PDP addresss
         headers = {'Content-Type': 'application/json'}
         try:
             response = requests.post(pdp_url, data=json.dumps(credentials), headers=headers)
             response.raise_for_status()  # 如果repose != 200 ， 報錯
             print(f"Successfully posted credentials to PDP: {response.json()}")
+            return credentials_pb2.CredentialResponse(message="Auth passed!")
         except requests.exceptions.RequestException as e:
             print(f"Failed to post credentials to PDP: {e}")
 
