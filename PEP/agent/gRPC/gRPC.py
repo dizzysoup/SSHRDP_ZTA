@@ -1,6 +1,6 @@
 import grpc
-import credentials_pb2
-import credentials_pb2_grpc
+from gRPC import credentials_pb2
+from gRPC import credentials_pb2_grpc
 import json
 from fido2.cose import ES256 
 

@@ -206,14 +206,9 @@ match args.command:
         print("Credential authenticated!")
         
     case "ssh":        
-       
-
-        
-       
-        
         ip = args.argtext.split('@')[1]
         user = {"id": str(index).encode("utf-8") , "name": args.argtext.split('@')[0]}     
-        command = ["ssh" ,  args.argtext ]   
+        command = ["ssh" ,  args.argtext , "-p" , "2223"]   
         subprocess.run(command, check=True)
         
         

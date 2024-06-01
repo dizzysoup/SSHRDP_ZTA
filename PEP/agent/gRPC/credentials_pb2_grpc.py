@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import credentials_pb2 as credentials__pb2
+from gRPC import credentials_pb2 as credentials__pb2
 
 GRPC_GENERATED_VERSION = '1.64.0'
 GRPC_VERSION = grpc.__version__
