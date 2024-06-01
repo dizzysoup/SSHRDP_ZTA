@@ -2,50 +2,32 @@ from concurrent import futures
 import grpc
 import credentials_pb2
 import credentials_pb2_grpc
-import os 
-import json
-
-# 憑證儲存
-def store_credential_files(user_id, credential):
-    # 提取 credential 的各個屬性並轉換為可序列化的格式
-    credential_id = credential["credential_id"].hex()
-    public_key = {
-        k: v.hex() if isinstance(v, bytes) else v
-        for k, v in credential["public_key"].items()
-    }
-    sign_count = 0  # 假設初始簽名計數為 0
-    transports = "usb"  # 假設默認傳輸方式為 USB
-    aaguid = credential["aaguid"].hex()
-   
-    # 將屬性轉換為字典格式
-    credential_data = {
-        "user_id": user_id.decode("utf-8"),
-        "public_key": public_key,
-        "sign_count": sign_count,
-        "transports": transports,
-        "aaguid": aaguid,
-        "credential_id": credential_id,
-    }
-    
-    # 將字典格式轉換為 JSON 並儲存到文件中
-    filename = f'credentials/credential.json'
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
-    with open(filename, 'w') as f:
-        json.dump(credential_data, f, indent=4)
 
 class CredentialServiceServicer(credentials_pb2_grpc.CredentialServiceServicer):
-   
     def StoreCredential(self, request, context):
         user_id = request.user_id
         credentials = {
+            "user_id": user_id,
+            "public_key": {
+                "kty": request.public_key.kty,
+                "alg": request.public_key.alg,
+                "crv": request.public_key.crv,
+                "x": request.public_key.x,
+                "y": request.public_key.y,
+            },
+            "sign_count": request.sign_count,
+            "transports": request.transports,
             "aaguid": request.aaguid,
-            "credential_id": request.credential_id,
-            "public_key": request.public_key,
+            "credential_id": request.credential_id
         }
         print(f"Received credentials for user_id {user_id}: {credentials}")
         # 在這裡儲存憑證
-        store_credential_files(user_id, credentials)
+        self.store_credential_files(user_id, credentials)
         return credentials_pb2.CredentialResponse(message="Credentials stored successfully")
+    
+    def store_credential_files(self, user_id, credentials):
+        # 這裡是儲存憑證的邏輯
+        pass
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
