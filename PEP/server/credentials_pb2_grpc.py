@@ -44,6 +44,11 @@ class CredentialServiceStub(object):
                 request_serializer=credentials__pb2.CredentialRequest.SerializeToString,
                 response_deserializer=credentials__pb2.CredentialResponse.FromString,
                 _registered_method=True)
+        self.SendCredentialToAuth = channel.unary_unary(
+                '/credentials.CredentialService/SendCredentialToAuth',
+                request_serializer=credentials__pb2.CredentialRequest.SerializeToString,
+                response_deserializer=credentials__pb2.CredentialResponse.FromString,
+                _registered_method=True)
 
 
 class CredentialServiceServicer(object):
@@ -55,11 +60,22 @@ class CredentialServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def SendCredentialToAuth(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_CredentialServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'StoreCredential': grpc.unary_unary_rpc_method_handler(
                     servicer.StoreCredential,
+                    request_deserializer=credentials__pb2.CredentialRequest.FromString,
+                    response_serializer=credentials__pb2.CredentialResponse.SerializeToString,
+            ),
+            'SendCredentialToAuth': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendCredentialToAuth,
                     request_deserializer=credentials__pb2.CredentialRequest.FromString,
                     response_serializer=credentials__pb2.CredentialResponse.SerializeToString,
             ),
@@ -89,6 +105,33 @@ class CredentialService(object):
             request,
             target,
             '/credentials.CredentialService/StoreCredential',
+            credentials__pb2.CredentialRequest.SerializeToString,
+            credentials__pb2.CredentialResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SendCredentialToAuth(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/credentials.CredentialService/SendCredentialToAuth',
             credentials__pb2.CredentialRequest.SerializeToString,
             credentials__pb2.CredentialResponse.FromString,
             options,
