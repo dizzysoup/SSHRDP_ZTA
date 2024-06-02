@@ -53,15 +53,36 @@ def store_credential_files(user_id, credential):
         json.dump(credential_data, f, indent=4)
     return credential_data
 
-# 憑證提取
-def load_credential_files():
+# 憑證提取 by dict 
+def load_credential_files_by_dict():
     # 從文件中加載 JSON 數據
     with open('credentials/credential.json', 'r') as f:
         credential_data = json.load(f)   
     # 組裝為原始格式的字典
-    credential = AttestedCredentialData.from_dict(credential_data)
-    return credential
+    credential_data = AttestedCredentialData.from_dict(credential_data)
+    return credential_data
 
+# 憑證提取 by json 
+def load_credential_files_by_json():
+    # 從文件中加載 JSON 數據
+    with open('credentials/credential.json', 'r') as f:
+        credential_data = json.load(f)   
+    return credential_data
+
+# 更新data 、暫存可以刪
+def update_json_file(file_path, updates):
+    # 读取现有的 JSON 文件内容
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+
+    # 更新指定的键值
+    for key, value in updates.items():
+        if key in data:
+            data[key] = value
+
+    # 将更新后的内容写回 JSON 文件
+    with open(file_path, 'w') as f:
+        json.dump(data, f, indent=4)
 
 def enumerate_devices():
     for dev in CtapHidDevice.list_devices():
@@ -72,6 +93,7 @@ def enumerate_devices():
 
 
 index = 0 
+
 
 # Handle user interaction
 class CliInteraction(UserInteraction):
@@ -135,10 +157,14 @@ login_parser = subparsers.add_parser('login', help='login help')
 login_parser.add_argument('--pep' , type=str , help='The PEP address')
 login_parser.add_argument('--user', type=str, help='The username')
 
+# logout sub-command
+logout_parser = subparsers.add_parser('logout', help='logout help')
 
 # ssh sub-command
 ssh_parser = subparsers.add_parser('ssh', help='ssh command')
 ssh_parser.add_argument("argtext", type=str, help="SSH command")
+
+
 
 
 # parser.add_argument('argtext', help='IP address to connect')
@@ -186,7 +212,8 @@ match args.command:
         username = args.user
 
         # 讀取憑證
-        credential = load_credential_files()
+        credential = load_credential_files_by_dict()      
+
         # Prepare parameters for getAssertion
         request_options, state = server.authenticate_begin(user_verification=uv)
         
@@ -194,8 +221,11 @@ match args.command:
         selection = client.get_assertion(request_options["publicKey"])
         result = selection.get_response(0)  # There may be multiple responses, get the first.
         
-        print("USER ID:", result.user_handle)
 
+        # 傳送憑證到server -- '192.168.71.3:50051'        
+        rpcclient = CredentialClient(pep_address)
+        rpcclient.send_credentials_to_auth(0, load_credential_files_by_json())
+        
         # server 端驗證
         server.authenticate_complete(
             state,
@@ -207,10 +237,23 @@ match args.command:
         )
         print("Credential authenticated!")
         
-    case "ssh":        
+        update_json_file('credentials/data.json', {'pep_auth': True, 'pep_ip':  args.pep})
+        
+    case "ssh":      
+        with open('credentials/data.json', 'r') as f:
+           data = json.load(f) 
+        if data.get("pep_auth") == False:
+            print("Please login first")
+            sys.exit(1)
         ip = args.argtext.split('@')[1]
         user = {"id": str(index).encode("utf-8") , "name": args.argtext.split('@')[0]}     
         command = ["ssh" ,  args.argtext , "-p" , "2223"]   
         subprocess.run(command, check=True)
+    
+    case "logout" : 
+       update_json_file('credentials/data.json', {'pep_auth': False, 'pep_ip': ''})
+       print("Logout successfully")
+
+        
         
         
