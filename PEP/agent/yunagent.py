@@ -182,6 +182,9 @@ match args.command:
     case "login" : 
         pep_address = args.pep
         username = args.user
+        # 傳送憑證到server -- '192.168.71.3:50051'        
+        client = CredentialClient(pep_address)
+        client.send_auth_to_server(str(index).encode("utf-8"))
         
         # 讀取憑證
         credential = load_credential_files()

@@ -33,3 +33,14 @@ class CredentialClient :
             
             response = stub.StoreCredential(request)
             print(response.message)
+
+    def send_auth_to_server(self, user_id):
+        with grpc.insecure_channel(self.server_address) as channel:
+            stub = credentials_pb2_grpc.CredentialServiceStub(channel)
+            
+            request = credentials_pb2.HelloWord(
+                message=str(user_id)
+            )
+            
+            response = stub.AuthChk(request)
+            print(response.message)
