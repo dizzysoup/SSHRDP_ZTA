@@ -25,29 +25,11 @@ class CredentialServiceServicer(credentials_pb2_grpc.CredentialServiceServicer):
         print(f"Received credentials for user_id {user_id}: {credentials}")
         # 在這裡儲存憑證
         self.store_credential_files(user_id, credentials)
-        
-        
-        
         return credentials_pb2.CredentialResponse(message="Credentials stored successfully")
     
     def store_credential_files(self, user_id, credentials):
         # 這裡是儲存憑證的邏輯
         pass
-    # 發送資訊到PDP的邏輯
-    def AuthChk(self, request , context):
-        print(request)
-        return credentials_pb2.response(message="{}歲，姓名{}".format(request.age, request.name))
-        '''
-        pdp_url = "http://192.168.71.5:3000/login"  #  PDP addresss
-        headers = {'Content-Type': 'application/json'}
-        try:
-            response = requests.post(pdp_url, data=json.dumps({"text" : "text"}), headers=headers)
-            response.raise_for_status()  # 如果repose != 200 ， 報錯
-            print(f"Successfully posted credentials to PDP: {response.json()}")
-            return credentials_pb2.CredentialResponse(message="Auth passed!")
-        except requests.exceptions.RequestException as e:
-            print(f"Failed to post credentials to PDP: {e}")
-        '''
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
