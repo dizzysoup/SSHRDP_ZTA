@@ -46,8 +46,8 @@ class CredentialServiceStub(object):
                 _registered_method=True)
         self.AuthChk = channel.unary_unary(
                 '/credentials.CredentialService/AuthChk',
-                request_serializer=credentials__pb2.HelloWord.SerializeToString,
-                response_deserializer=credentials__pb2.CredentialResponse.FromString,
+                request_serializer=credentials__pb2.request.SerializeToString,
+                response_deserializer=credentials__pb2.response.FromString,
                 _registered_method=True)
 
 
@@ -76,8 +76,8 @@ def add_CredentialServiceServicer_to_server(servicer, server):
             ),
             'AuthChk': grpc.unary_unary_rpc_method_handler(
                     servicer.AuthChk,
-                    request_deserializer=credentials__pb2.HelloWord.FromString,
-                    response_serializer=credentials__pb2.CredentialResponse.SerializeToString,
+                    request_deserializer=credentials__pb2.request.FromString,
+                    response_serializer=credentials__pb2.response.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -132,8 +132,8 @@ class CredentialService(object):
             request,
             target,
             '/credentials.CredentialService/AuthChk',
-            credentials__pb2.HelloWord.SerializeToString,
-            credentials__pb2.CredentialResponse.FromString,
+            credentials__pb2.request.SerializeToString,
+            credentials__pb2.response.FromString,
             options,
             channel_credentials,
             insecure,

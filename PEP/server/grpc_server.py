@@ -35,6 +35,9 @@ class CredentialServiceServicer(credentials_pb2_grpc.CredentialServiceServicer):
         pass
     # 發送資訊到PDP的邏輯
     def AuthChk(self, request , context):
+        print(request)
+        return credentials_pb2.response(message="{}歲，姓名{}".format(request.age, request.name))
+        '''
         pdp_url = "http://192.168.71.5:3000/login"  #  PDP addresss
         headers = {'Content-Type': 'application/json'}
         try:
@@ -44,6 +47,7 @@ class CredentialServiceServicer(credentials_pb2_grpc.CredentialServiceServicer):
             return credentials_pb2.CredentialResponse(message="Auth passed!")
         except requests.exceptions.RequestException as e:
             print(f"Failed to post credentials to PDP: {e}")
+        '''
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
