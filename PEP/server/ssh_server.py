@@ -81,7 +81,8 @@ def ssh_connect_and_interact(host, port, username, password , chan):
         channel.close()
         trans.close()
 
-if __name__ == "__main__":
+# ssh_server 主要運行程式碼
+def start_ssh_server():
     host = '192.168.71.4'
     port = 22
     username = 'linuxrp'
