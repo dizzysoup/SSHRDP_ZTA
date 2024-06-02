@@ -51,6 +51,7 @@ def store_credential_files(user_id, credential):
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, 'w') as f:
         json.dump(credential_data, f, indent=4)
+    return credential_data
 
 # 憑證提取
 def load_credential_files():
@@ -171,10 +172,11 @@ match args.command:
             "credential_id": auth_data.credential_data.credential_id,
             "public_key": auth_data.credential_data.public_key
         }
-        print(auth_data.credential_data)
+        
         print("New credential created!")
         # 於本地端儲存憑證
-        store_credential_files(user["id"], credentials)   
+        credentials = store_credential_files(user["id"], credentials)   
+        
         # 傳送憑證到server -- '192.168.71.3:50051'        
         client = CredentialClient(pep_address)
         client.send_credentials_to_server(user["id"], credentials)
@@ -182,10 +184,7 @@ match args.command:
     case "login" : 
         pep_address = args.pep
         username = args.user
-        # 傳送憑證到server -- '192.168.71.3:50051'        
-        client = CredentialClient(pep_address)
-        client.send_auth_to_server(str(index).encode("utf-8"))
-        
+
         # 讀取憑證
         credential = load_credential_files()
         # Prepare parameters for getAssertion

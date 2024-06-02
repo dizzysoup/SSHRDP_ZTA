@@ -11,15 +11,16 @@ class CredentialClient :
     
     # 傳送給server
     def send_credentials_to_server(self,user_id, credentials):
-        with grpc.insecure_channel(self.server_addresses) as channel:
+        with grpc.insecure_channel(self.server_address) as channel:
             stub = credentials_pb2_grpc.CredentialServiceStub(channel)
+           
             
             public_key = credentials_pb2.PublicKey(
-                kty=credentials["public_key"]["1"],
-                alg=credentials["public_key"]["3"],
-                crv=credentials["public_key"]["-1"],
-                x=credentials["public_key"]["-2"],
-                y=credentials["public_key"]["-3"]
+                kty= credentials["public_key"][1],
+                alg= int(credentials["public_key"][3]),
+                crv= int(credentials["public_key"][-1]),
+                x=credentials["public_key"][-2],
+                y=credentials["public_key"][-3]
             )
             
             request = credentials_pb2.CredentialRequest(
@@ -32,15 +33,4 @@ class CredentialClient :
             )
             
             response = stub.StoreCredential(request)
-            print(response.message)
-
-    def send_auth_to_server(self, user_id):
-        with grpc.insecure_channel(self.server_address) as channel:
-            stub = credentials_pb2_grpc.CredentialServiceStub(channel)
-            
-            request = credentials_pb2.HelloWord(
-                message=str(user_id)
-            )
-            
-            response = stub.AuthChk(request)
             print(response.message)
