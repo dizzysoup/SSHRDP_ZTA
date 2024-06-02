@@ -1,15 +1,17 @@
+FROM node:14.18-alpine3.15
 
-FROM node:latest
-# Create app directory
-WORKDIR /app
+WORKDIR /yunpdp
 
-# Install app dependencies
-COPY package.json  ./
-RUN npm install 
+COPY package*.json ./
 
-# Bundle app source
+
+RUN npm install
+
+RUN npm install -g nodemon
+
 COPY . .
 
-# Declaring PROT in containers
+
 EXPOSE 3000
-CMD [ "npm", "start" ]
+
+CMD ["npm", "start"]

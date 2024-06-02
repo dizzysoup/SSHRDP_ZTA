@@ -3,12 +3,11 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'Yun PDP' });
 });
 
-router.post('/', function(req, res, next) {
-  var username = req.body.username;
-  var password = req.body.password;
+router.post('/login', function(req, res) {
+  
 
   res.json({ status: 'success', message: 'Received username and password successfully.' });
 });
