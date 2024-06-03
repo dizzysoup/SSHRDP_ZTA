@@ -7,6 +7,10 @@ credentials >> 憑證資料夾(local stored)
 ### gRPC 核心
 sshgrpc_pb2
 
+## register 
+```python
+    yunagent register --pep 192.168.71.3:50051 --user admin
+```
 
 ## Server 
 
