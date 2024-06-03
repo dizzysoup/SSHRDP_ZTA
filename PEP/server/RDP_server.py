@@ -1,6 +1,7 @@
 import socket
 import threading
 import requests
+import json
 
 #  Proxy Server
 PROXY_HOST = '0.0.0.0'
@@ -55,6 +56,12 @@ def start_rdpProxy():
     try:
         while True:
             client_socket, client_address = proxy_server_socket.accept()
+            with open('chk.json', 'r') as f:
+                data = json.load(f) 
+            print(data.get("expire"))
+            if data.get("expire") == -1 or data.get("expire") == None :
+                client_socket.send("還未做FIDO 驗證")
+                break ; 
             print(f"Connection from {client_address}")            
             handle_client(client_socket)
     except KeyboardInterrupt:
@@ -63,6 +70,7 @@ def start_rdpProxy():
 
 def run_rdpservers():
     while True:
+       
         # 建立線程
         rdp_thread = threading.Thread(target=start_rdpProxy, daemon=True)
         rdp_thread.start()

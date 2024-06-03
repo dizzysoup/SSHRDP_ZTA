@@ -54,8 +54,15 @@ class CredentialServiceServicer(credentials_pb2_grpc.CredentialServiceServicer):
         return credentials_pb2.CredentialResponse(message="Credentials Authentication successfully")
     
     def Authchk(self, user_id, credentials):
+        data = {'expire': 1}
+        with open('chk.json', 'w') as f :
+            json.dump(data , f , indent=4)
         pass
-
+    def Logout(self, request , context):
+        data = {'expire': -1}
+        with open('chk.json', 'w') as f :
+            json.dump(data , f , indent=4)
+        return credentials_pb2.CredentialResponse(message="Logout successfully")
 def start_gGPC_server():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     credentials_pb2_grpc.add_CredentialServiceServicer_to_server(CredentialServiceServicer(), server)
