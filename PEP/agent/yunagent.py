@@ -4,6 +4,7 @@ from fido2.server import Fido2Server
 from fido2.cose import ES256 
 from gRPC.gRPC import CredentialClient
 from getpass import getpass
+import pyautogui
 import sys
 import ctypes
 import subprocess
@@ -14,6 +15,7 @@ import socket
 import select 
 import sys 
 import json 
+from pynput.keyboard import Key, Controller
 import os
 
 try:
@@ -164,7 +166,10 @@ logout_parser = subparsers.add_parser('logout', help='logout help')
 ssh_parser = subparsers.add_parser('ssh', help='ssh command')
 ssh_parser.add_argument("argtext", type=str, help="SSH command")
 
-
+# rdp sub-command
+rdp_parser = subparsers.add_parser('rdp', help='rdp command')
+rdp_parser.add_argument("--rp", type=str, help="The RP address")
+rdp_parser.add_argument("--user", type=str, help="The username")
 
 
 # parser.add_argument('argtext', help='IP address to connect')
@@ -256,10 +261,25 @@ match args.command:
         user = {"id": str(index).encode("utf-8") , "name": args.argtext.split('@')[0]}     
         command = ["ssh" ,  arg , "-p" , "2223"]   
         subprocess.run(command, check=True)
+    case "rdp":
+        with open('credentials/data.json', 'r') as f:
+           data = json.load(f) 
+        if data.get("pep_auth") == False:
+            print("Please login first")
+            sys.exit(1)
+        # 打開遠程桌面客戶端
+        subprocess.Popen(['mstsc'])
+        # 等待遠程桌面客戶端打開
+      
+        
     
     case "logout" : 
-       update_json_file('credentials/data.json', {'pep_auth': False, 'pep_ip': ''})
-       print("Logout successfully")
+        with open('credentials/data.json', 'r') as f:
+           data = json.load(f) 
+        rpcclient = CredentialClient(data.get("pep_ip") + ':50051')
+        rpcclient.send_logout_to_server()
+        update_json_file('credentials/data.json', {'pep_auth': False, 'pep_ip': ''})
+        print("Logout successfully")
 
         
         

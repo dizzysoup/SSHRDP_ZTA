@@ -62,3 +62,11 @@ class CredentialClient :
             response = stub.SendCredentialToAuth(request)
             print(response.message)
             return response.message
+    # logout
+    def send_logout_to_server(self):
+        with grpc.insecure_channel(self.server_address) as channel:
+            stub = credentials_pb2_grpc.CredentialServiceStub(channel)
+            request = credentials_pb2.LogoutMsg(message="0")
+            response = stub.Logout(request)
+            print(response.message)
+            return response.message
