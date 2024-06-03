@@ -202,7 +202,7 @@ match args.command:
         print("New credential created!")
         # 於本地端儲存憑證
         credentials = store_credential_files(user["id"], credentials)   
-        
+        pep_address += ':50051'
         # 傳送憑證到server -- '192.168.71.3:50051'        
         client = CredentialClient(pep_address)
         client.send_credentials_to_server(user["id"], credentials)
@@ -222,7 +222,8 @@ match args.command:
         result = selection.get_response(0)  # There may be multiple responses, get the first.
         
 
-        # 傳送憑證到server -- '192.168.71.3:50051'        
+        # 傳送憑證到server -- '192.168.71.3:50051'       
+        pep_address += ':50051' 
         rpcclient = CredentialClient(pep_address)
         rpcclient.send_credentials_to_auth(0, load_credential_files_by_json())
         
@@ -245,9 +246,15 @@ match args.command:
         if data.get("pep_auth") == False:
             print("Please login first")
             sys.exit(1)
+        
+        
         ip = args.argtext.split('@')[1]
+        user = args.argtext.split('@')[0]
+        
+        arg = "yunpep@" + data.get("pep_ip")
+        
         user = {"id": str(index).encode("utf-8") , "name": args.argtext.split('@')[0]}     
-        command = ["ssh" ,  args.argtext , "-p" , "2223"]   
+        command = ["ssh" ,  arg , "-p" , "2223"]   
         subprocess.run(command, check=True)
     
     case "logout" : 
