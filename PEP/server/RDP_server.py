@@ -3,11 +3,11 @@ import threading
 import requests
 
 #  Proxy Server
-PROXY_HOST = '192.168.166.18'
+PROXY_HOST = '0.0.0.0'
 PROXY_PORT = 3389
 
 # RDP Server
-RDP_SERVER_HOST = '192.168.166.17'
+RDP_SERVER_HOST = '192.168.71.8'
 RDP_SERVER_PORT = 3389
     
 # PDP 
@@ -33,8 +33,8 @@ def handle_client(client_socket):
     auth_part = auth_data.split("mstshash=")[1]
     print(f"Received authentication data: {auth_part}")
     
-    response = requests.post(AUTH_SERVER_URL, data={'username' : auth_part})
-    if response.status_code == 200 :
+   # response = requests.post(AUTH_SERVER_URL, data={'username' : auth_part})
+    if True :
         client_to_server_thread = threading.Thread(target=forward_data, args=(client_socket, rdp_server_socket))
         server_to_client_thread = threading.Thread(target=forward_data, args=(rdp_server_socket, client_socket))
     
@@ -44,10 +44,9 @@ def handle_client(client_socket):
     else :
         print("Authentication failed")
         client_socket.close()
-    
 
-def main():
-    # 创建代理服务器的套接字
+def start_rdpProxy():
+   
     proxy_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     proxy_server_socket.bind((PROXY_HOST, PROXY_PORT))
     proxy_server_socket.listen(5)
@@ -60,7 +59,17 @@ def main():
             handle_client(client_socket)
     except KeyboardInterrupt:
         print("Proxy server shutting down...")
-        proxy_server_socket.close()
+        proxy_server_socket.close()    
 
-if __name__ == "__main__":
-    main()
+def run_rdpservers():
+    while True:
+        # 建立線程
+        rdp_thread = threading.Thread(target=start_rdpProxy, daemon=True)
+        rdp_thread.start()
+        
+        # 等待線程完成
+        rdp_thread.join()
+        
+        print("線程已結束，重新啟動...")
+    
+
