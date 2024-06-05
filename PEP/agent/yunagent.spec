@@ -1,24 +1,30 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+block_cipher = None
 
 a = Analysis(
     ['yunagent.py'],
-    pathex=['F:\\碩士事物\\資安院計畫\\SSHRDP_ZTA\\PEP\\fido2','.'],
+    pathex=['.'],
     binaries=[],
     datas=[
-      ('F:\\碩士事物\\資安院計畫\\SSHRDP_ZTA\\PEP\\fido2\\public_suffix_list.dat','.\\fido2')
+        ('credentials/credential.json', 'credentials'),
+        ('credentials/data.json', 'credentials'),
+        ('fido2/*', 'fido2'),
+        ('gRPC/credentials_pb2.py', 'gRPC'),
+        ('gRPC/credentials_pb2_grpc.py', 'gRPC'),
+        ('gRPC/gRPC.py', 'gRPC')
     ],
-    hiddenimports=[
-        'server.py','cbor.py','webauth.py','pcsc.py','ctap1.py','cose.py','client.py','rpid.py','utils.py','features.py','ctap.py','mds3.py','win_api.py'
-    ],
+    hiddenimports=[],
     hookspath=[],
-    hooksconfig={},
     runtime_hooks=[],
     excludes=[],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
     noarchive=False,
-    optimize=0,
 )
-pyz = PYZ(a.pure)
+
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(
     pyz,
@@ -30,19 +36,18 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=True,
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
+    upx_exclude=[],
+    runtime_tmpdir=None,
+    console=True
 )
+
 coll = COLLECT(
     exe,
     a.binaries,
+    a.zipfiles,
     a.datas,
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='yunagent',
+    name='your_executable_name'
 )

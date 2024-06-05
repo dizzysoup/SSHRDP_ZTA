@@ -49,16 +49,21 @@ def store_credential_files(user_id, credential):
     }
     
     # 將字典格式轉換為 JSON 並儲存到文件中
-    filename = f'credentials/credential.json'
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
-    with open(filename, 'w') as f:
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    json_file_path = os.path.join(current_dir, 'credentials', '/credential.json')
+    # filename = f'credentials/credential.json'
+    # os.makedirs(os.path.dirname(filename), exist_ok=True)
+    with open(json_file_path, 'w') as f:
         json.dump(credential_data, f, indent=4)
     return credential_data
 
 # 憑證提取 by dict 
 def load_credential_files_by_dict():
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    json_file_path = os.path.join(current_dir, 'credentials', '/credential.json')
+    
     # 從文件中加載 JSON 數據
-    with open('credentials/credential.json', 'r') as f:
+    with open(json_file_path, 'r') as f:
         credential_data = json.load(f)   
     # 組裝為原始格式的字典
     credential_data = AttestedCredentialData.from_dict(credential_data)
@@ -66,8 +71,10 @@ def load_credential_files_by_dict():
 
 # 憑證提取 by json 
 def load_credential_files_by_json():
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    json_file_path = os.path.join(current_dir, 'credentials', '/credential.json')
     # 從文件中加載 JSON 數據
-    with open('credentials/credential.json', 'r') as f:
+    with open(json_file_path, 'r') as f:
         credential_data = json.load(f)   
     return credential_data
 
@@ -178,6 +185,8 @@ args = parser.parse_args()
 print(args)
 server = Fido2Server({"id": "example.com", "name": "Example RP"}, attestation="direct")
 credentials_data = "" 
+current_dir = os.path.dirname(os.path.realpath(__file__))
+
 match args.command:
     case "register" :
         pep_address = args.pep
@@ -242,11 +251,13 @@ match args.command:
             result.signature,
         )
         print("Credential authenticated!")
+        json_file_path = os.path.join(current_dir, 'credentials', 'data.json')
+        update_json_file(json_file_path, {'pep_auth': True, 'pep_ip':  args.pep})
         
-        update_json_file('credentials/data.json', {'pep_auth': True, 'pep_ip':  args.pep})
-        
-    case "ssh":      
-        with open('credentials/data.json', 'r') as f:
+    case "ssh":   
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        json_file_path = os.path.join(current_dir, 'credentials', 'data.json')   
+        with open(json_file_path, 'r') as f:
            data = json.load(f) 
         if data.get("pep_auth") == False:
             print("Please login first")
@@ -262,7 +273,14 @@ match args.command:
         command = ["ssh" ,  arg , "-p" , "2223"]   
         subprocess.run(command, check=True)
     case "rdp":
-        with open('credentials/data.json', 'r') as f:
+        ip = args.rp
+        user = args.user
+        if (ip == None or user == None):
+            print("Please input the RP address and username")
+            sys.exit(1)
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        json_file_path = os.path.join(current_dir, 'credentials', 'data.json') 
+        with open(json_file_path, 'r') as f:
            data = json.load(f) 
         if data.get("pep_auth") == False:
             print("Please login first")
@@ -274,11 +292,13 @@ match args.command:
         
     
     case "logout" : 
-        with open('credentials/data.json', 'r') as f:
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        json_file_path = os.path.join(current_dir, 'credentials', 'data.json') 
+        with open(json_file_path, 'r') as f:
            data = json.load(f) 
         rpcclient = CredentialClient(data.get("pep_ip") + ':50051')
         rpcclient.send_logout_to_server()
-        update_json_file('credentials/data.json', {'pep_auth': False, 'pep_ip': ''})
+        update_json_file(json_file_path, {'pep_auth': False, 'pep_ip': ''})
         print("Logout successfully")
 
         
